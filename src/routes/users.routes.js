@@ -1,6 +1,7 @@
 import express from "express";
 import {
   verifyEmailController,
+  undoRequestController,
   responseRequestController,
   getMeController,
   getRequestFriendController,
@@ -11,6 +12,7 @@ import {
   verifyResetPasswordController,
   validateResetPasswordController,
   resetPasswordController,
+  changePasswordController,
   suggestedFriendsController,
   getUserByNameController,
 } from "../controller/user.controller.js";
@@ -65,6 +67,14 @@ usersRouter.get(
   getRequestFriendController
 );
 /**
+ * Description: undo, don;t want to add friend
+ */
+usersRouter.post(
+  "/undo-request-friend",
+  accessTokenMiddleware,
+  undoRequestController
+);
+/**
  * Description: accept / deny friend request
  */
 usersRouter.post(
@@ -91,6 +101,13 @@ usersRouter.get(
   validateResetPasswordController
 );
 usersRouter.post("/reset-password", resetPasswordController);
+
+//change-password in edit-profile
+usersRouter.post(
+  "/change-password",
+  accessTokenMiddleware,
+  changePasswordController
+);
 
 //suggested friends
 usersRouter.get(

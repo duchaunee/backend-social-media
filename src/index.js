@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import dbConnection from "./db_config";
 // const dbConnection = require("./db_config");
@@ -16,13 +17,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8800;
 
-// app.use(
-//   cors({
-//     credentials: true, // Cho phép gửi cookie
-//     origin: 'http://localhost:3001',
-//     methods: ['GET', 'POST', 'PUT', 'DELETE']
-//   })
-// )
+app.use(
+  cors({
+    credentials: true, // Cho phép gửi cookie
+    origin: [
+      "http://localhost:3001",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://testcookie.com:3000",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 dbConnection();
 //
@@ -32,8 +38,9 @@ dbConnection();
 //   d = null;
 // if (!(a && b && c && d)) console.log("hehe");
 
+app.use(cookieParser());
 app.use(helmet());
-app.use(cors());
+// app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json({ limit: "10mb" }));

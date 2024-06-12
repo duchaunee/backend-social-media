@@ -26,6 +26,7 @@ export const registerController = async (req, res, next) => {
 export const loginController = async (req, res, next) => {
   const { user } = req;
   try {
+    console.log("Cookies: ", req.cookies);
     /**
      *  Khi 1 key có value là undefined thì object đó sẽ không có key/value đó
      * NHƯNG NÓ VẪN TỒN TẠI trong object đó
@@ -36,12 +37,19 @@ export const loginController = async (req, res, next) => {
     const accessToken = Utils.createJWT(user._id, "1d");
     console.log("accessToken: ", accessToken);
 
-    res.status(201).json({
-      success: true,
-      message: "Login successfully",
-      user,
-      accessToken,
-    });
+    res
+      // .cookie("cookie-server", "123", {
+      //   // httpOnly: true,
+      //   sameSite: "none",
+      //   secure: true,
+      // })
+      .status(201)
+      .json({
+        success: true,
+        message: "Login successfully",
+        user,
+        accessToken,
+      });
   } catch (error) {
     console.log(error);
     res.status(404).json({ message: error.message });

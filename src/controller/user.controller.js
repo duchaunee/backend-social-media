@@ -51,12 +51,12 @@ export const updateUserController = async (req, res, next) => {
     console.log("userId: ", userId);
 
     const updateUser = {
-      firstName,
-      lastName,
-      location,
-      profileUrl,
-      profession,
-      description,
+      firstName: firstName?.trim(),
+      lastName: lastName?.trim(),
+      location: location?.trim(),
+      profileUrl: profileUrl?.trim(),
+      profession: profession,
+      description: description?.trim(),
     };
     console.log("updateUser: ", updateUser);
     const user = await Users.findByIdAndUpdate(userId, updateUser, {
@@ -171,6 +171,38 @@ export const getRequestFriendController = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     next(new Error("Request Friend Failed"));
+  }
+};
+
+export const undoRequestController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+
+    const { requestTo } = req.body;
+
+    if (!requestTo) {
+      return next(new Error("requestTo is required !"));
+    }
+
+    const requestExist = await FriendRequest.findOne({
+      $and: [{ requestFrom: userId }, { requestTo }],
+    });
+
+    if (!requestExist) {
+      next(new Error("No friend requests were sent."));
+      return;
+    }
+    const removeRequestFriend = await FriendRequest.findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(requestExist._id),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Undo Request Success !",
+    });
+  } catch (error) {
+    console.log(error);
+    next(new Error("Undo Friend Failed"));
   }
 };
 
@@ -368,19 +400,55 @@ export const resetPasswordController = async (req, res, next) => {
       if (!isMatch) {
         next(new Error("Invalid reset password link. Please try again 3"));
         return;
-      } else {
-        user.password = await utils.hashString(newPassword);
-        // user.password = newPassword;
-        // console.log("new user: ", user);
-        await user.save();
-        await PasswordReset.findOneAndDelete({ code });
-
-        return res.status(200).send({
-          status: "OK",
-          message: "Reset Password successfully",
-        });
       }
+      user.password = await utils.hashString(newPassword);
+      // user.password = newPassword;
+      // console.log("new user: ", user);
+      await user.save();
+      await PasswordReset.findOneAndDelete({ code });
+
+      return res.status(200).send({
+        status: "OK",
+        message: "Reset Password successfully",
+      });
     }
+  } catch (error) {
+    console.log(error);
+    next(new Error(error.message));
+  }
+};
+
+export const changePasswordController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const { current_password, new_password, confirm_password } = req.body;
+
+    const user = await Users.findById(userId);
+
+    if (!user) {
+      next(new Error("User is not exist. Try again !"));
+      return;
+    }
+
+    const isMatchConfirmPw = new_password === confirm_password;
+    if (!isMatchConfirmPw) {
+      next(new Error("Confirm passwords do no match !"));
+      return;
+    }
+
+    const isMatch = await utils.compareString(current_password, user?.password);
+    if (!isMatch) {
+      next(new Error("Incorrect password"));
+      return;
+    }
+
+    user.password = await utils.hashString(new_password);
+    await user.save();
+
+    return res.status(200).send({
+      status: "OK",
+      message: "Change Password successfully",
+    });
   } catch (error) {
     console.log(error);
     next(new Error(error.message));
