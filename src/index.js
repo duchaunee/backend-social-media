@@ -25,7 +25,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "http://testcookie.com:3000",
-      "https://socialmedia254.vercel.app/",
+      "https://socialmedia254.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })

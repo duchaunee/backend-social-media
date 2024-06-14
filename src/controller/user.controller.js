@@ -646,6 +646,7 @@ export const verifyEmailController = async (req, res, next) => {
   const { userId, token } = req.params;
   //khi ng dung dang ky thi tao 1 Verification
   const result = await Verification.findOne({ userId });
+  console.log("result: ", result);
   if (!result) {
     //neu user tu y nhap link nhung sai userID/token
     // res.redirect("http://localhost:3000/redirect/");
@@ -666,6 +667,7 @@ export const verifyEmailController = async (req, res, next) => {
       // res.redirect(`/users/verified?status=error&message=${message}`);
     } catch (error) {
       console.log(error);
+      return next(new Error(error.message));
       // res.redirect(`/users/verified?message=`);
     }
   } else {
@@ -689,6 +691,7 @@ export const verifyEmailController = async (req, res, next) => {
     } else {
       // invalid token
       const message = "Verification failed or link is invalid";
+      return next(new Error(message));
       // res.redirect(`/users/verified?status=error&message=${message}`);
     }
   }

@@ -7,12 +7,7 @@ import PasswordReset from "../models/PasswordReset.model.js";
 
 dotenv.config();
 const { REACT_URL, AUTH_EMAIL, AUTH_PASSWORD, APP_URL } = process.env;
-console.log("{ REACT_URL, AUTH_EMAIL, AUTH_PASSWORD, APP_URL } : ", {
-  REACT_URL,
-  AUTH_EMAIL,
-  AUTH_PASSWORD,
-  APP_URL,
-});
+console.log("RUN SEND MAIL");
 // console.log({
 //   user: AUTH_EMAIL,
 //   pass: AUTH_PASSWORD,
