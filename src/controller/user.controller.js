@@ -18,6 +18,9 @@ export const getUserController = async (req, res, next) => {
     //--> di ve next Error handling Middleware
     return next(new Error("User not found"));
   }
+  if (user?.verified === "false") {
+    return next(new Error("User email is not verified"));
+  }
   return res.json({
     message: "Get profile successfully !",
     result: user,
@@ -98,6 +101,14 @@ export const requestFriendController = async (req, res, next) => {
     const { userId } = req;
     const { requestTo } = req.body;
 
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
+
     //check if requestTo is not ObjectId
     if (!mongoose.Types.ObjectId.isValid(requestTo)) {
       return next(new Error("Invalid Object ID"));
@@ -111,6 +122,9 @@ export const requestFriendController = async (req, res, next) => {
       return next(new Error("Send request to non-existing user"));
     }
 
+    if (friend?.verified === "false") {
+      return next(new Error("Friend is not verified"));
+    }
     //check if user sent 1 request add friend to `requestTo`
     const requestExist = await FriendRequest.findOne({
       requestFrom: userId,
@@ -151,6 +165,14 @@ export const getRequestFriendController = async (req, res, next) => {
     const { limit } = req.query;
     const { userId } = req;
 
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
+
     const allRequestRecived = await FriendRequest.find({
       requestTo: userId,
       requestStatus: "Pending",
@@ -177,6 +199,14 @@ export const getRequestFriendController = async (req, res, next) => {
 export const undoRequestController = async (req, res, next) => {
   try {
     const { userId } = req;
+
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
 
     const { requestTo } = req.body;
 
@@ -209,6 +239,13 @@ export const undoRequestController = async (req, res, next) => {
 export const responseRequestController = async (req, res, next) => {
   try {
     const { userId } = req;
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
 
     const { rid, status } = req.body;
 
@@ -429,6 +466,9 @@ export const changePasswordController = async (req, res, next) => {
       next(new Error("User is not exist. Try again !"));
       return;
     }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
 
     const isMatchConfirmPw = new_password === confirm_password;
     if (!isMatchConfirmPw) {
@@ -463,11 +503,15 @@ export const friendSentController = async (req, res, next) => {
     if (!user) {
       return next(new Error("User is not exist. Try again !"));
     }
+    if (user?.verified === "false") {
+      return next(new Error("User email is not verified"));
+    }
 
     const allFriendSent = await FriendRequest.find({
       requestFrom: userId,
     }).populate({
       path: "requestTo",
+      match: { verified: "true" },
       select: "firstName lastName friends profileUrl profession -password",
     });
 
@@ -496,6 +540,7 @@ export const suggestedFriendsController = async (req, res, next) => {
     queryObject._id = { $ne: userId };
     //lọc ra các user mà field friends không có userId (tức là suggest friend thì không gợi ý những người đã thành friend với user)
     queryObject.friends = { $nin: userId };
+    queryObject.verified = "true";
 
     const [suggestedFriends, friendRequests] = await Promise.all([
       Users.find(queryObject)
@@ -644,6 +689,7 @@ export const relationshipController = async (req, res, next) => {
 
 export const verifyEmailController = async (req, res, next) => {
   const { userId, token } = req.params;
+  console.log("{ userId, token }: ", { userId, token });
   //khi ng dung dang ky thi tao 1 Verification
   const result = await Verification.findOne({ userId });
   console.log("result: ", result);
@@ -655,10 +701,15 @@ export const verifyEmailController = async (req, res, next) => {
   }
 
   const { expiresAt, token: token_in_db } = result;
+  console.log("{ expiresAt, token: token_in_db }: ", {
+    expiresAt,
+    token: token_in_db,
+  });
 
   // token has expires
   if (expiresAt < Date.now()) {
     try {
+      console.log("het han");
       await Promise.all([
         Verification.findOneAndDelete({ userId }),
         Users.findOneAndDelete({ _id: userId }),
@@ -671,8 +722,10 @@ export const verifyEmailController = async (req, res, next) => {
       // res.redirect(`/users/verified?message=`);
     }
   } else {
+    console.log("van con han");
     //token valid
     const isMatch = await utils.compareString(token, token_in_db);
+    console.log("isMatch: ", isMatch);
     if (isMatch) {
       try {
         await Promise.all([
