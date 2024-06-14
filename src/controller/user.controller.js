@@ -455,6 +455,37 @@ export const changePasswordController = async (req, res, next) => {
   }
 };
 
+export const friendSentController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User is not exist. Try again !"));
+    }
+
+    const allFriendSent = await FriendRequest.find({
+      requestFrom: userId,
+    }).populate({
+      path: "requestTo",
+      select: "firstName lastName friends profileUrl profession -password",
+    });
+
+    if (!allFriendSent) {
+      return next(new Error("Friend Sent is not exist. Try again !"));
+    }
+
+    res.status(200).json({
+      success: true,
+      length: allFriendSent.length,
+      message: "Get all friend sent sussessfully !",
+      data: allFriendSent,
+    });
+  } catch (error) {
+    next(new Error(error.message));
+  }
+};
+
 export const suggestedFriendsController = async (req, res, next) => {
   try {
     const { limit } = req.query;
@@ -493,6 +524,118 @@ export const suggestedFriendsController = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: filteredSuggestions,
+    });
+  } catch (error) {
+    next(new Error(error.message));
+  }
+};
+
+export const allFriendsController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const user = await Users.findById(userId).populate({
+      path: "friends",
+      select: "_id firstName lastName profileUrl friends location -password",
+    });
+
+    if (!user) {
+      return next(new Error("User is not exist. Try again !"));
+    }
+    const allFriend = user.friends;
+
+    res.status(200).json({
+      success: true,
+      length: allFriend.length,
+      data: allFriend,
+    });
+  } catch (error) {
+    next(new Error(error.message));
+  }
+};
+
+export const unfriendController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const { friend_id } = req.body;
+
+    const [user, friend] = await Promise.all([
+      Users.findById(userId),
+      Users.findById(friend_id),
+    ]);
+
+    if (!user) {
+      return next(new Error("User is not exist. Try again !"));
+    }
+    if (!friend) {
+      return next(new Error("Friend is not exist. Try again !"));
+    }
+
+    user.friends = user.friends.filter((f_id) => f_id.toString() !== friend_id);
+    friend.friends = friend.friends.filter((id) => id.toString() !== userId);
+
+    Promise.all([user.save(), friend.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Unfriend successfully !",
+    });
+  } catch (error) {
+    next(new Error(error.message));
+  }
+};
+
+export const relationshipController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const { friend_id } = req.body;
+
+    const [user, friend] = await Promise.all([
+      Users.findById(userId),
+      Users.findById(friend_id),
+    ]);
+
+    if (!user) {
+      return next(new Error("User is not exist. Try again !"));
+    }
+    if (!friend) {
+      return next(new Error("Friend is not exist. Try again !"));
+    }
+    /**
+     * status_friend: Đang là bạn
+     * status_sent: Đã gửi cho friend 1 lời mời kết bạn
+     * status_received: Đã nhận từ friend 1 lời mời kết bạn
+     * suggestions: Người lạ
+     */
+    const status_friend = user.friends.some(
+      (f_id) => f_id.toString() === friend_id
+    );
+    const [status_sent, status_received] = await Promise.all([
+      FriendRequest.find({
+        requestFrom: userId,
+        requestTo: friend_id,
+      }),
+      FriendRequest.find({
+        requestFrom: friend_id,
+        requestTo: userId,
+      }),
+    ]);
+
+    let relationship = {};
+    if (status_friend) {
+      relationship.status = "friend";
+    } else if (status_sent.length > 0) {
+      relationship.status = "sent";
+    } else if (status_received.length > 0) {
+      relationship.rid = status_received[0]._id;
+      relationship.status = "received";
+    } else {
+      relationship.status = "suggestions";
+    }
+
+    res.status(200).json({
+      success: true,
+      relationship,
+      message: "Get relationship successfully !",
     });
   } catch (error) {
     next(new Error(error.message));

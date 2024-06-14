@@ -12,6 +12,7 @@ export const registerController = async (req, res, next) => {
       lastName: lastName,
       email: email,
       password: hashedPassword,
+      profileUrl: process.env.DEFAULT_AVATAR, //default-avatar
     });
 
     // res.status(200).send(user);

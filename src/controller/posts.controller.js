@@ -3,6 +3,35 @@ import Posts from "../models/Post.model";
 import Users from "../models/User.model";
 import Comments from "../models/Comment.model";
 
+export const getAllPostsController = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const user = await Users.findOne({ _id: userId });
+    if (!user) {
+      return next(new Error("Not Authentication !"));
+    }
+    const allPosts = await Posts.find()
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .sort({ updatedAt: -1 });
+
+    // const reworkAllPost = allPosts.map((p) => {
+    //   const p_obj = p.toObject();
+    //   const userId_post = p_obj.userId._id;
+    //   return { ...p_obj, yourPost: userId === userId_post.toString() };
+    // });
+
+    res.status(200).send({
+      status: true,
+      data: allPosts,
+    });
+  } catch (error) {
+    next(new Error(error.message));
+  }
+};
+
 export const createPostController = async (req, res, next) => {
   try {
     const { userId } = req;
@@ -39,10 +68,14 @@ export const getPostsController = async (req, res, next) => {
     const { postId } = req.params;
     console.log("postId: ", postId);
 
-    const post = await Posts.findById(postId).populate({
-      path: "userId",
-      select: "firstName lastName location profileUrl -password",
-    });
+    const post = await Posts.findById(postId)
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl -password",
+      })
+      .populate({
+        path: "comments",
+      });
     if (!post) return next(new Error("Post is not exist !"));
     res.status(200).json({
       sucess: true,
@@ -109,20 +142,23 @@ export const likePostController = async (req, res, next) => {
     const post = await Posts.findById(postId);
     if (!post) return next(new Error("Post is not exist"));
 
+    let isLike = false;
     const liked_index = post.likes.findIndex((pid) => pid === String(userId));
-    console.log("liked_index: ", liked_index);
     if (liked_index === -1) {
+      isLike = true;
       post.likes.push(userId);
     } else {
+      isLike = false;
       post.likes = post.likes.filter((pid) => pid !== String(userId));
-      console.log("post.likes: ", post.likes);
     }
 
     const newPost = await Posts.findByIdAndUpdate(postId, post, {
       new: true,
     });
+
     res.status(200).json({
       sucess: true,
+      isLike,
       message: "successfully",
       data: newPost,
     });
@@ -134,7 +170,8 @@ export const likePostController = async (req, res, next) => {
 export const likeCommentController = async (req, res, next) => {
   try {
     const { userId } = req;
-    const { commentId, replyId } = req.params;
+    const { commentId } = req.params;
+    const { replyId } = req.body;
 
     const comment = await Comments.findById(commentId);
     if (!comment) return next(new Error("Comment is not exist"));
@@ -155,8 +192,10 @@ export const likeCommentController = async (req, res, next) => {
       const newComment = await Comments.findByIdAndUpdate(commentId, comment, {
         new: true,
       });
+
       res.status(200).json({
         sucess: true,
+        isLike: liked_index === -1 ? true : false,
         message: "successfully",
         data: newComment,
       });
@@ -212,6 +251,10 @@ export const commentPostController = async (req, res, next) => {
     if (!comment) {
       return next(new Error("Comment is required !"));
     }
+    const user = await Users.findById(userId);
+    if (!user) {
+      return next(new Error("User is not exist. Try again !"));
+    }
 
     const newComment = new Comments({ comment, from, userId, postId: postId });
     await newComment.save();
@@ -226,7 +269,13 @@ export const commentPostController = async (req, res, next) => {
       new: true,
     });
 
-    res.status(201).json(updatedPost);
+    res.status(201).json({
+      updatedPost,
+      newComment: {
+        ...newComment.toObject(),
+        userId: user,
+      },
+    });
   } catch (error) {
     next(new Error(error.message));
   }

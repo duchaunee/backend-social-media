@@ -13,8 +13,12 @@ import {
   validateResetPasswordController,
   resetPasswordController,
   changePasswordController,
+  unfriendController,
+  allFriendsController,
+  friendSentController,
   suggestedFriendsController,
   getUserByNameController,
+  relationshipController,
 } from "../controller/user.controller.js";
 import { accessTokenMiddleware } from "../middlewares/auth.middleware.js";
 import { resetPasswordMiddleware } from "../middlewares/user.middleware.js";
@@ -109,11 +113,26 @@ usersRouter.post(
   changePasswordController
 );
 
+//get-all frient sent
+usersRouter.post("/friends-sent", accessTokenMiddleware, friendSentController);
 //suggested friends
 usersRouter.get(
   "/suggested-friends",
   accessTokenMiddleware,
   suggestedFriendsController
+);
+
+//all friends
+usersRouter.post("/all-friends", accessTokenMiddleware, allFriendsController);
+
+//unfriend
+usersRouter.post("/unfriend", accessTokenMiddleware, unfriendController);
+
+//get-relationship
+usersRouter.post(
+  "/relationship",
+  accessTokenMiddleware,
+  relationshipController
 );
 
 export default usersRouter;

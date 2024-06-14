@@ -4,6 +4,7 @@ import {
   commentPostController,
   createPostController,
   deletePostController,
+  getAllPostsController,
   getCommentsController,
   getPostsController,
   getUserPostsController,
@@ -13,6 +14,12 @@ import {
 } from "../controller/posts.controller";
 
 const postsRouter = express.Router();
+
+/**
+ * Create a new post
+ */
+postsRouter.get("/", accessTokenMiddleware, getAllPostsController);
+
 /**
  * Create a new post
  */
@@ -67,7 +74,7 @@ postsRouter.post(
  * Like a comment/ a reply comment
  */
 postsRouter.post(
-  "/like-comment/:commentId/:replyId",
+  "/like-comment/:commentId",
   accessTokenMiddleware,
   likeCommentController
 );
