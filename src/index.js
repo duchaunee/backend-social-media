@@ -69,6 +69,7 @@ app.get(
     res.cookie("name", "duchau", {
       maxAge: 3600 * 1000,
       sameSite: "None",
+      secure: true,
     });
     console.log("middlware_3");
     res.status(200).send("ok 3");
