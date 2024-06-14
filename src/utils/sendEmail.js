@@ -7,6 +7,12 @@ import PasswordReset from "../models/PasswordReset.model.js";
 
 dotenv.config();
 const { REACT_URL, AUTH_EMAIL, AUTH_PASSWORD, APP_URL } = process.env;
+console.log("{ REACT_URL, AUTH_EMAIL, AUTH_PASSWORD, APP_URL } : ", {
+  REACT_URL,
+  AUTH_EMAIL,
+  AUTH_PASSWORD,
+  APP_URL,
+});
 // console.log({
 //   user: AUTH_EMAIL,
 //   pass: AUTH_PASSWORD,
@@ -28,6 +34,7 @@ export const sendVericationEmail = async (user, res, next) => {
   // console.log("user: ", user);
   const token = _id + uuidv4();
   const link = REACT_URL + "verify/" + _id + "/" + token + "?email=" + email;
+  console.log("link: ", link);
 
   const mailOptions = {
     from: AUTH_EMAIL,
