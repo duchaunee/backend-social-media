@@ -9,7 +9,7 @@ import dbConnection from "./db_config";
 // const dbConnection = require("./db_config");
 // const errorMiddleware = require("./middlewares/error.middleware");
 import errorMiddleware from "./middlewares/error.middleware";
-import router from "./routes";
+import router from "./routes/index.js";
 // const router = require("./routes");
 
 dotenv.config();
@@ -25,6 +25,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "http://testcookie.com:3000",
+      "https://socialmedia254.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
