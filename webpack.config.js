@@ -30,4 +30,8 @@ export default {
       querystring: resolve("querystring-es3"),
     },
   },
+  externals: {
+    async_hooks: "commonjs async_hooks",
+    zlib: "commonjs zlib",
+  },
 };
