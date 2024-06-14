@@ -3,12 +3,12 @@ import {
   accessTokenMiddleware,
   loginMiddleware,
   registerMiddleware,
-} from "../middlewares/auth.middleware";
+} from "../middlewares/auth.middleware.js";
 import {
   loginController,
   registerController,
   logoutController,
-} from "../controller/auth.controller";
+} from "../controller/auth.controller.js";
 
 const authRouter = express.Router();
 //

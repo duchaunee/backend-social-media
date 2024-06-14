@@ -5,10 +5,10 @@ import morgan from "morgan";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import dbConnection from "./db_config";
+import dbConnection from "./db_config/index.js";
 // const dbConnection = require("./db_config");
 // const errorMiddleware = require("./middlewares/error.middleware");
-import errorMiddleware from "./middlewares/error.middleware";
+import errorMiddleware from "./middlewares/error.middleware.js";
 import router from "./routes/index.js";
 // const router = require("./routes");
 

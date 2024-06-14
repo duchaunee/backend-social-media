@@ -1,8 +1,8 @@
 import JWT from "jsonwebtoken";
-import Users from "../models/User.model";
+import Users from "../models/User.model.js";
 import _ from "lodash";
-import { sendVericationEmail } from "../utils/sendEmail";
-import utils from "../utils";
+import { sendVericationEmail } from "../utils/sendEmail.js";
+import utils from "../utils/index.js";
 
 export const accessTokenMiddleware = async (req, res, next) => {
   const authHeader = req?.headers?.authorization;

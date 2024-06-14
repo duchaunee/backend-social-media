@@ -1,6 +1,6 @@
-import Utils from "../utils";
-import Users from "../models/User.model";
-import { sendVericationEmail } from "../utils/sendEmail";
+import Utils from "../utils/index.js";
+import Users from "../models/User.model.js";
+import { sendVericationEmail } from "../utils/sendEmail.js";
 
 export const registerController = async (req, res, next) => {
   try {

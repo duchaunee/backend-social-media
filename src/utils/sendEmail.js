@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
-import utils from "./index";
-import Verification from "../models/EmailVerification.model";
-import PasswordReset from "../models/PasswordReset.model";
+import utils from "./index.js";
+import Verification from "../models/EmailVerification.model.js";
+import PasswordReset from "../models/PasswordReset.model.js";
 
 dotenv.config();
 const { REACT_URL, AUTH_EMAIL, AUTH_PASSWORD, APP_URL } = process.env;

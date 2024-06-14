@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import Posts from "../models/Post.model";
-import Users from "../models/User.model";
-import Comments from "../models/Comment.model";
+import Posts from "../models/Post.model.js";
+import Users from "../models/User.model.js";
+import Comments from "../models/Comment.model.js";
 
 export const getAllPostsController = async (req, res, next) => {
   try {

@@ -1,5 +1,5 @@
 import express from "express";
-import { accessTokenMiddleware } from "../middlewares/auth.middleware";
+import { accessTokenMiddleware } from "../middlewares/auth.middleware.js";
 import {
   commentPostController,
   createPostController,
@@ -11,7 +11,7 @@ import {
   likeCommentController,
   likePostController,
   replyPostCommentController,
-} from "../controller/posts.controller";
+} from "../controller/posts.controller.js";
 
 const postsRouter = express.Router();
 
