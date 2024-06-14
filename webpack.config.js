@@ -25,9 +25,7 @@ export default {
   resolve: {
     extensions: [".js", ""],
     fallback: {
-      buffer: resolve("buffer/"),
-      zlib: resolve("browserify-zlib"),
-      querystring: resolve("querystring-es3"),
+      async_hooks: false,
     },
   },
   externals: {
