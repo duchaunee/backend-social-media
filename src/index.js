@@ -52,38 +52,30 @@ app.use(morgan("dev"));
 app.use(router);
 
 app.get("/", (req, res, next) => {
-  res.send("BACKEND SOCIAL MEDIA @cre: dwchau.dev@gmail.com");
+  res.send({
+    status: 200,
+    message: "BACKEND SOCIAL MEDIA @cre: dwchau.dev@gmail.com",
+  });
 });
 
-app.get(
-  "/set-cookie",
-  (req, res, next) => {
-    next();
-    // const a = async () => {
-    //   console.log("in a");
-    // };
-    // a();
-    // console.log(" a(): ", a());
-    console.log("ben duoi next middlware_1");
-  },
-  (req, res, next) => {
-    next();
-    console.log("ben duoi next middlware_2");
-  },
-  (req, res, next) => {
-    res.cookie("name", "duchau", {
-      maxAge: 3600 * 1000,
-      sameSite: "none",
-      secure: true,
-    });
-    console.log("middlware_3");
-    res.status(200).send("ok 3");
-  }
-);
+app.get("/set-cookie", (req, res, next) => {
+  res
+    .setHeader("Set-Cookie", "cre=dwchau; Path=/; SameSite=None; Secure")
+    .send("SET COOKIE SUCCESSFULLY");
+});
 
 app.get("/get-cookie", (req, res, next) => {
   console.log("GET COOKIE TREN SERVER THANH CONG: ", req.cookies);
   res.send(req.cookies);
+});
+
+app.get("/remove-cookie", (req, res, next) => {
+  res
+    .setHeader(
+      "Set-Cookie",
+      "cre=dwchau; expires=Thu, Jan 01 1970 00:00:00 UTC; Path=/; SameSite=None; Secure"
+    )
+    .send(req.cookies);
 });
 //
 // app.get(
