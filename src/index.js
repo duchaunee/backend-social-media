@@ -50,8 +50,13 @@ app.use(morgan("dev"));
 
 //routes
 app.use(router);
+
+app.get("/", (req, res, next) => {
+  res.send("BACKEND SOCIAL MEDIA @cre: dwchau.dev@gmail.com");
+});
+
 app.get(
-  "/",
+  "/set-cookie",
   (req, res, next) => {
     next();
     // const a = async () => {
@@ -75,6 +80,11 @@ app.get(
     res.status(200).send("ok 3");
   }
 );
+
+app.get("/get-cookie", (req, res, next) => {
+  console.log("GET COOKIE TREN SERVER THANH CONG: ", req.cookies);
+  res.send(req.cookies);
+});
 //
 // app.get(
 //   "/",
