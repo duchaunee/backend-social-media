@@ -68,7 +68,7 @@ app.get(
   (req, res, next) => {
     res.cookie("name", "duchau", {
       maxAge: 3600 * 1000,
-      sameSite: "None",
+      sameSite: "none",
       secure: true,
     });
     console.log("middlware_3");
